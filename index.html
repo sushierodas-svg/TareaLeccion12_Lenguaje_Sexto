@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuadro Plus / Delta - Colegio Escolaris</title>
+    <!-- Tailwind CSS para diseño responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas para generar la imagen descargable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Fuente Nunito -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --naranja: #db6015;
+            --amarillo: #f7be00;
+            --azul-oscuro: #244b5a;
+            --azul-claro: #f0f8ff;
+            --rojo: #993921;
+            --gris-claro: #f3f4f6;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #e5e7eb;
+            color: var(--azul-oscuro);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        /* Contenedor principal que se va a "Fotografiar" */
+        #capture-area {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+            /* Fondo de cuadrícula estilo cuaderno */
+            background-image: 
+                linear-gradient(#f0f8ff 1px, transparent 1px),
+                linear-gradient(90deg, #f0f8ff 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-color: white;
+        }
+
+        /* Encabezado Escolaris */
+        .header-escolaris {
+            background-color: var(--azul-oscuro);
+            color: white;
+            padding: 20px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-escolaris::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            width: 150px;
+            height: 150px;
+            background-color: var(--naranja);
+            border-radius: 50%;
+            opacity: 0.9;
+            z-index: 0;
+        }
+
+        .header-escolaris::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: 80px;
+            width: 100px;
+            height: 100px;
+            background-color: var(--amarillo);
+            border-radius: 50%;
+            opacity: 0.8;
+            z-index: 0;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Textareas auto-ajustables */
+        textarea {
+            width: 100%;
+            min-height: 250px;
+            resize: none;
+            border: none;
+            background-color: transparent;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #374151;
+            padding: 10px;
+        }
+
+        textarea:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+        }
+
+        .column-plus {
+            border-top: 5px solid #10b981; /* Verde */
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+
+        .column-delta {
+            border-top: 5px solid var(--naranja);
+            background-color: rgba(219, 96, 21, 0.05);
+        }
+
+        /* Botón de descarga */
+        .btn-download {
+            background-color: var(--naranja);
+            color: white;
+            font-weight: bold;
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 6px rgba(219, 96, 21, 0.3);
+            transition: all 0.3s ease;
+            margin: 30px auto;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(219, 96, 21, 0.4);
+            background-color: #c45512;
+        }
+
+        /* Input Nombre */
+        .input-nombre {
+            border: 0;
+            border-bottom: 2px solid var(--azul-oscuro);
+            background: transparent;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.1rem;
+            padding: 5px;
+            width: 100%;
+            max-width: 300px;
+            color: var(--azul-oscuro);
+            font-weight: 600;
+        }
+        
+        .input-nombre:focus { outline: none; border-bottom-color: var(--naranja); }
+
+        /* Modal Anti-Fallo para móviles */
+        #safe-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(36, 75, 90, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        #safe-modal img {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 3px solid white;
+        }
+
+        .loader {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--naranja);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px auto;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @media print {
+            body { background: white; padding: 0; }
+            #capture-area { box-shadow: none; border: 1px solid #ccc; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="w-full max-w-4xl mx-auto flex flex-col items-center">
+        
+        <!-- ZONA DE CAPTURA (Esto es lo que se vuelve imagen) -->
+        <div id="capture-area" class="p-0 sm:p-0">
+            
+            <!-- Encabezado -->
+            <div class="header-escolaris text-left">
+                <div class="header-content">
+                    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 uppercase">Tarea / Investigación</h1>
+                    <p class="text-white opacity-90 font-semibold">Técnicas de Estudio</p>
+                </div>
+            </div>
+
+            <!-- Contenido Principal -->
+            <div class="p-6 sm:p-10">
+                
+                <!-- Campo de Nombre -->
+                <div class="mb-8 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <label for="student-name" class="font-bold text-gray-700 whitespace-nowrap">Nombre del estudiante:</label>
+                    <input type="text" id="student-name" class="input-nombre" placeholder="Escribe tu nombre aquí...">
+                </div>
+
+                <!-- Instrucciones -->
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mb-8">
+                    <h3 class="font-bold text-blue-800 mb-1 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
+                        Instrucciones:
+                    </h3>
+                    <p class="text-sm text-gray-700">Completa el cuadro PLUS/DELTA. En la parte del <strong>Plus</strong>, escribe todas las técnicas de estudio que practicas y te han permitido estudiar efectivamente. En la parte de <strong>Delta</strong>, escribe aquellas actividades que debes mejorar, al momento de estudiar.</p>
+                </div>
+
+                <!-- Cuadrícula Plus / Delta -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Columna Plus -->
+                    <div class="column-plus rounded-xl p-5 shadow-sm border border-gray-100 relative">
+                        <div class="flex items-center gap-3 mb-4 border-b-2 border-emerald-100 pb-2">
+                            <div class="bg-emerald-500 text-white w-10 h-10 rounded-full flex items-center justify-center text-2xl font-bold">+</div>
+                            <h2 class="text-2xl font-extrabold text-emerald-700">PLUS</h2>
+                        </div>
+                        <p class="text-xs text-emerald-600 mb-2 font-semibold uppercase tracking-wider">Lo que hago bien / Mis fortalezas:</p>
+                        <textarea placeholder="Ej: Hago resúmenes con colores, subrayo las ideas principales... (Escribe aquí)"></textarea>
+                    </div>
+
+                    <!-- Columna Delta -->
+                    <div class="column-delta rounded-xl p-5 shadow-sm border border-gray-100 relative">
+                        <div class="flex items-center gap-3 mb-4 border-b-2 border-orange-100 pb-2">
+                            <div class="bg-orange-500 text-white w-10 h-10 rounded-full flex items-center justify-center text-2xl font-bold">Δ</div>
+                            <h2 class="text-2xl font-extrabold text-orange-700">DELTA</h2>
+                        </div>
+                        <p class="text-xs text-orange-600 mb-2 font-semibold uppercase tracking-wider">Lo que debo mejorar / Mis retos:</p>
+                        <textarea placeholder="Ej: Me distraigo con el celular, no planifico mi tiempo... (Escribe aquí)"></textarea>
+                    </div>
+
+                </div>
+            </div>
+            
+            <!-- Pie de página en captura -->
+            <div class="bg-gray-50 text-center py-3 text-xs text-gray-400 font-semibold border-t border-gray-200">
+                Generado en plataforma interactiva • Colegio Escolaris
+            </div>
+
+        </div>
+
+        <!-- Botón de Descarga (Fuera de la zona de captura) -->
+        <div class="w-full text-center no-print">
+            <div id="loading" class="loader mt-6"></div>
+            <button id="downloadBtn" class="btn-download" onclick="generarImagen()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Terminar y Descargar Trabajo
+            </button>
+            <p class="text-xs text-gray-500 mt-2">Al hacer clic, se generará una imagen con tus respuestas.</p>
+        </div>
+
+    </div>
+
+    <!-- MODAL ANTI-FALLO PARA MÓVILES (Si el iframe bloquea la descarga) -->
+    <div id="safe-modal" class="no-print">
+        <h2 class="text-2xl font-bold text-white mb-2 text-center">¡Tu trabajo está listo! 🌟</h2>
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-3 mb-4 rounded max-w-md text-sm text-center">
+            <p><strong>Si no se descargó automáticamente:</strong></p>
+            <p>Mantén presionada la imagen con tu dedo (o haz clic derecho) y selecciona <b>"Guardar Imagen"</b> o <b>"Compartir"</b>.</p>
+        </div>
+        
+        <img id="result-image" src="" alt="Tu trabajo renderizado">
+        
+        <button onclick="cerrarModal()" class="mt-6 bg-white text-gray-800 px-6 py-2 rounded-full font-bold hover:bg-gray-200 transition">
+            Volver a editar
+        </button>
+    </div>
+
+    <script>
+        // Función para auto-ajustar el tamaño de los textareas
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+            });
+        });
+
+        // Función principal para generar y descargar
+        async function generarImagen() {
+            const captureArea = document.getElementById('capture-area');
+            const btn = document.getElementById('downloadBtn');
+            const loader = document.getElementById('loading');
+            const nombre = document.getElementById('student-name').value.trim() || 'Estudiante';
+            
+            // UI States
+            btn.style.display = 'none';
+            loader.style.display = 'block';
+
+            try {
+                // Configuración de html2canvas para máxima compatibilidad
+                const canvas = await html2canvas(captureArea, {
+                    scale: 2, // Mejor resolución
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    windowWidth: captureArea.scrollWidth,
+                    windowHeight: captureArea.scrollHeight
+                });
+
+                // Convertir a imagen PNG
+                const imgData = canvas.toDataURL('image/png');
+
+                // 1. INTENTO DE DESCARGA DIRECTA
+                try {
+                    const link = document.createElement('a');
+                    link.download = `Plus_Delta_${nombre.replace(/\s+/g, '_')}.png`;
+                    link.href = imgData;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } catch(e) {
+                    console.warn("La descarga automática fue bloqueada, procediendo al modal.");
+                }
+
+                // 2. SISTEMA ANTI-FALLO (Mostrar Modal siempre por si acaso falla en iOS/Canvas App)
+                document.getElementById('result-image').src = imgData;
+                document.getElementById('safe-modal').style.display = 'flex';
+
+            } catch (error) {
+                console.error("Error al generar la imagen: ", error);
+                alert("Hubo un pequeño error al generar la imagen. Por favor, intenta de nuevo o toma una captura de pantalla de tu dispositivo.");
+            } finally {
+                loader.style.display = 'none';
+                btn.style.display = 'flex';
+            }
+        }
+
+        function cerrarModal() {
+            document.getElementById('safe-modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
