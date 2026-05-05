@@ -1,82 +1,250 @@
-<style>
-    :root {
-        --naranja: #db6015;
-        --amarillo: #f7be00;
-        --azul-oscuro: #244b5a;
-        --azul-claro: #f0f8ff;
-    }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuadro Plus / Delta - Colegio Escolaris</title>
+    <!-- Tailwind CSS para diseño responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas para generar la imagen descargable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Fuente Nunito -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --naranja: #db6015;
+            --amarillo: #f7be00;
+            --azul-oscuro: #244b5a;
+            --azul-claro: #f0f8ff;
+        }
 
-    body {
-        font-family: 'Nunito', sans-serif;
-        background-color: #e5e7eb;
-        color: var(--azul-oscuro);
-        padding: 20px;
-    }
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #e5e7eb;
+            color: var(--azul-oscuro);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
 
-    #capture-area {
-        background-color: #ffffff;
-        width: 100%;
-        max-width: 800px;
-        margin: 0 auto;
-        border-radius: 16px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        overflow: hidden;
-        /* Cuadrícula */
-        background-image: 
-            linear-gradient(#f0f8ff 1px, transparent 1px),
-            linear-gradient(90deg, #f0f8ff 1px, transparent 1px);
-        background-size: 20px 20px;
-    }
+        #capture-area {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 800px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+            position: relative;
+            background-image: 
+                linear-gradient(#f0f8ff 1px, transparent 1px),
+                linear-gradient(90deg, #f0f8ff 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
 
-    /* ESTO ES LO MÁS IMPORTANTE PARA QUE SE VEA EL TEXTO */
-    textarea {
-        width: 100% !important;
-        min-height: 250px !important; /* Altura mínima garantizada */
-        height: auto;
-        resize: none;
-        border: none;
-        background: transparent;
-        font-family: 'Nunito', sans-serif;
-        font-size: 1.15rem;
-        line-height: 1.6;
-        color: #374151;
-        padding: 10px;
-        display: block;
-        white-space: pre-wrap !important; /* Forza el salto de línea */
-        word-wrap: break-word !important;
-        overflow: hidden !important; /* Quita flechas de scroll en la imagen */
-    }
+        .header-escolaris {
+            background-color: var(--azul-oscuro);
+            color: white;
+            padding: 20px 30px;
+            position: relative;
+        }
 
-    textarea:focus { outline: none; background: rgba(255,255,255,0.4); }
+        /* CORRECCIÓN CRÍTICA: Salto de línea y auto-ajuste */
+        textarea {
+            width: 100% !important;
+            min-height: 250px;
+            resize: none;
+            border: none;
+            background-color: transparent;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #374151;
+            padding: 10px;
+            display: block;
+            /* Fuerza el texto a bajar de línea y no salirse a la derecha */
+            white-space: pre-wrap !important;
+            word-wrap: break-word !important;
+            overflow: hidden !important; 
+        }
 
-    .header-escolaris { background-color: var(--azul-oscuro); color: white; padding: 25px; }
-    .column-plus { border-top: 5px solid #10b981; background: rgba(16, 185, 129, 0.02); }
-    .column-delta { border-top: 5px solid var(--naranja); background: rgba(219, 96, 21, 0.02); }
+        textarea:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 8px;
+        }
 
-    .btn-download {
-        background-color: var(--naranja);
-        color: white;
-        font-weight: bold;
-        padding: 15px 30px;
-        border-radius: 50px;
-        cursor: pointer;
-        margin: 20px auto;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        border: none;
-    }
+        .column-plus { border-top: 5px solid #10b981; background-color: rgba(16, 185, 129, 0.05); }
+        .column-delta { border-top: 5px solid var(--naranja); background-color: rgba(219, 96, 21, 0.05); }
 
-    #safe-modal {
-        display: none;
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(36, 75, 90, 0.98);
-        z-index: 9999;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-    }
-    #result-image { max-width: 95%; max-height: 70vh; border: 5px solid white; border-radius: 10px; }
-</style>
+        .btn-download {
+            background-color: var(--naranja);
+            color: white;
+            font-weight: bold;
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            margin: 30px auto;
+            width: 100%;
+            max-width: 350px;
+        }
+
+        .input-nombre {
+            border: 0;
+            border-bottom: 2px solid var(--azul-oscuro);
+            background: transparent;
+            font-size: 1.1rem;
+            padding: 5px;
+            width: 100%;
+            max-width: 300px;
+            color: var(--azul-oscuro);
+            font-weight: 600;
+        }
+
+        #safe-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(36, 75, 90, 0.98);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        #result-image {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 12px;
+            border: 4px solid white;
+        }
+
+        .loader {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--naranja);
+            border-radius: 50%;
+            width: 30px; height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="w-full max-w-4xl mx-auto flex flex-col items-center">
+        
+        <div id="capture-area">
+            <div class="header-escolaris text-left">
+                <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2 uppercase">Tarea / Investigación</h1>
+                <p class="text-white opacity-90 font-semibold">Técnicas de Estudio</p>
+            </div>
+
+            <div class="p-6 sm:p-10">
+                <div class="mb-8 flex flex-col sm:flex-row sm:items-center gap-3">
+                    <label class="font-bold text-gray-700">Nombre del estudiante:</label>
+                    <input type="text" id="student-name" class="input-nombre" placeholder="Escribe tu nombre aquí...">
+                </div>
+
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg mb-8">
+                    <p class="text-sm text-gray-700"><strong>Instrucciones:</strong> Completa el cuadro PLUS (fortalezas) y DELTA (oportunidades de mejora).</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="column-plus rounded-xl p-5 border border-gray-100">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-emerald-500 text-white w-10 h-10 rounded-full flex items-center justify-center text-2xl font-bold">+</div>
+                            <h2 class="text-2xl font-extrabold text-emerald-700">PLUS</h2>
+                        </div>
+                        <p class="text-xs text-emerald-600 mb-2 font-bold uppercase">Lo que hago bien:</p>
+                        <textarea oninput="autoResize(this)" placeholder="Escribe aquí..."></textarea>
+                    </div>
+
+                    <div class="column-delta rounded-xl p-5 border border-gray-100">
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="bg-orange-500 text-white w-10 h-10 rounded-full flex items-center justify-center text-2xl font-bold">Δ</div>
+                            <h2 class="text-2xl font-extrabold text-orange-700">DELTA</h2>
+                        </div>
+                        <p class="text-xs text-orange-600 mb-2 font-bold uppercase">Lo que debo mejorar:</p>
+                        <textarea oninput="autoResize(this)" placeholder="Escribe aquí..."></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-50 text-center py-3 text-xs text-gray-400 font-bold border-t border-gray-200">
+                Generado en plataforma interactiva • Colegio Escolaris
+            </div>
+        </div>
+
+        <button id="downloadBtn" class="btn-download" onclick="generarImagen()">
+            Terminar y Descargar Trabajo
+        </button>
+        <div id="loading" class="loader"></div>
+    </div>
+
+    <div id="safe-modal">
+        <h2 class="text-2xl font-bold text-white mb-4 text-center">¡Tu trabajo está listo! 🌟</h2>
+        <img id="result-image" src="">
+        <button onclick="cerrarModal()" class="mt-6 bg-white text-gray-800 px-8 py-2 rounded-full font-bold">Volver a editar</button>
+    </div>
+
+    <script>
+        // Ajusta la altura del cuadro mientras escriben
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = (el.scrollHeight) + 'px';
+        }
+
+        async function generarImagen() {
+            const area = document.getElementById('capture-area');
+            const btn = document.getElementById('downloadBtn');
+            const loader = document.getElementById('loading');
+            const nombre = document.getElementById('student-name').value.trim() || 'Estudiante';
+            
+            // Forzar ajuste de altura antes de la foto
+            document.querySelectorAll('textarea').forEach(tx => autoResize(tx));
+
+            btn.style.display = 'none';
+            loader.style.display = 'block';
+
+            try {
+                const canvas = await html2canvas(area, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff'
+                });
+
+                const imgData = canvas.toDataURL('image/png');
+                document.getElementById('result-image').src = imgData;
+                document.getElementById('safe-modal').style.display = 'flex';
+
+                const link = document.createElement('a');
+                link.download = `Tarea_${nombre}.png`;
+                link.href = imgData;
+                link.click();
+            } catch (error) {
+                alert("Error al generar imagen. Por favor toma una captura de pantalla.");
+            } finally {
+                loader.style.display = 'none';
+                btn.style.display = 'flex';
+            }
+        }
+
+        function cerrarModal() {
+            document.getElementById('safe-modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
