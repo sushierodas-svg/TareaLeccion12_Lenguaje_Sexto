@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cuadro Plus / Delta - Colegio Escolaris</title>
+    <!-- Tailwind CSS para diseño responsivo -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas para generar la imagen descargable -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Fuente Nunito -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --naranja: #db6015; --azul-oscuro: #244b5a; }
@@ -24,20 +27,22 @@
 
         .header-escolaris { background-color: var(--azul-oscuro); color: white; padding: 25px 30px; }
 
-        /* ESTO SUSTITUYE AL TEXTAREA Y NO FALLA */
         .editable-box {
             width: 100%;
-            min-height: 300px;
-            padding: 10px;
+            min-height: 250px;
+            padding: 15px;
             font-size: 1.1rem;
             line-height: 1.5;
             color: #374151;
             outline: none;
             word-wrap: break-word;
-            overflow-wrap: break-word;
-            white-space: pre-wrap; /* Mantiene los saltos de línea */
+            white-space: pre-wrap; 
             text-align: left;
+            border: 2px dashed transparent;
+            transition: all 0.2s;
         }
+        
+        .editable-box:focus { border-color: rgba(0,0,0,0.1); background: rgba(255,255,255,0.5); border-radius: 8px; }
 
         .editable-box:empty:before {
             content: attr(data-placeholder);
@@ -47,7 +52,7 @@
         .column-plus { border-top: 5px solid #10b981; background-color: rgba(16, 185, 129, 0.03); }
         .column-delta { border-top: 5px solid var(--naranja); background-color: rgba(219, 96, 21, 0.03); }
         
-        .input-nombre { border: 0; border-bottom: 2px solid var(--azul-oscuro); background: transparent; font-weight: 600; width: 100%; max-width: 300px; }
+        .input-nombre { border: 0; border-bottom: 2px solid var(--azul-oscuro); background: transparent; font-weight: 600; width: 100%; max-width: 300px; padding: 5px; }
         
         #safe-modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -60,62 +65,87 @@
 <body>
 
     <div id="capture-area">
+        <!-- Encabezado -->
         <div class="header-escolaris">
-            <h1 class="text-3xl font-extrabold uppercase">Tarea / Investigación</h1>
-            <p class="opacity-90 font-semibold">Técnicas de Estudio</p>
+            <h1 class="text-3xl font-extrabold uppercase">Tarea: Cuadro Plus / Delta</h1>
+            <p class="opacity-90 font-semibold">Reflexión sobre mis Técnicas de Estudio</p>
         </div>
 
         <div class="p-6 sm:p-10">
-            <div class="mb-8 flex items-center gap-3">
-                <label class="font-bold text-gray-700">Nombre:</label>
-                <input type="text" id="student-name" class="input-nombre" placeholder="Escribe tu nombre...">
+            <!-- Nombre -->
+            <div class="mb-6 flex flex-wrap items-center gap-3">
+                <label class="font-bold text-gray-700">Mi nombre es:</label>
+                <input type="text" id="student-name" class="input-nombre" placeholder="Escribe aquí tu nombre completo">
+            </div>
+
+            <!-- INSTRUCCIONES SIMPLES -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div class="bg-emerald-50 border-l-4 border-emerald-500 p-3 rounded shadow-sm">
+                    <h4 class="font-bold text-emerald-800 text-sm">¿Qué es PLUS? (+)</h4>
+                    <p class="text-xs text-emerald-700">Escribe tus <b>fortalezas</b>. Todo lo que ya haces bien al estudiar (ej: "hago resúmenes", "uso colores").</p>
+                </div>
+                <div class="bg-orange-50 border-l-4 border-orange-500 p-3 rounded shadow-sm">
+                    <h4 class="font-bold text-orange-800 text-sm">¿Qué es DELTA? (Δ)</h4>
+                    <p class="text-xs text-orange-700">Escribe tus <b>oportunidades de mejora</b>. Lo que debes cambiar para estudiar mejor (ej: "dejar el celular").</p>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- PLUS -->
-                <div class="column-plus rounded-xl p-5 border border-gray-100">
+                <!-- COLUMNA PLUS -->
+                <div class="column-plus rounded-xl p-5 border border-gray-100 shadow-sm">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="bg-emerald-500 text-white w-10 h-10 rounded-full flex items-center justify-center text-2xl font-bold">+</div>
                         <h2 class="text-2xl font-extrabold text-emerald-700">PLUS</h2>
                     </div>
-                    <div id="plus-text" class="editable-box" contenteditable="true" data-placeholder="Escribe tus fortalezas aquí..."></div>
+                    <div id="plus-text" class="editable-box" contenteditable="true" data-placeholder="Escribe aquí lo que haces muy bien al estudiar..."></div>
                 </div>
 
-                <!-- DELTA -->
-                <div class="column-delta rounded-xl p-5 border border-gray-100">
+                <!-- COLUMNA DELTA -->
+                <div class="column-delta rounded-xl p-5 border border-gray-100 shadow-sm">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="bg-orange-500 text-white w-10 h-10 rounded-full flex items-center justify-center text-2xl font-bold">Δ</div>
                         <h2 class="text-2xl font-extrabold text-orange-700">DELTA</h2>
                     </div>
-                    <div id="delta-text" class="editable-box" contenteditable="true" data-placeholder="Escribe lo que debes mejorar aquí..."></div>
+                    <div id="delta-text" class="editable-box" contenteditable="true" data-placeholder="Escribe aquí lo que necesitas mejorar..."></div>
                 </div>
             </div>
         </div>
         
         <div class="bg-gray-50 text-center py-3 text-[10px] text-gray-400 font-bold border-t border-gray-200">
-            Colegio Escolaris • Generado en plataforma interactiva
+            Colegio Escolaris • "Aprendiendo a aprender"
         </div>
     </div>
 
-    <div class="flex justify-center mt-6">
-        <button id="downloadBtn" onclick="generarImagen()" class="bg-[#db6015] text-white font-bold py-4 px-10 rounded-full shadow-lg hover:scale-105 transition">
-            Terminar y Descargar Trabajo
+    <!-- Botón fuera del área de captura -->
+    <div class="flex flex-col items-center mt-6 mb-10 w-full">
+        <button id="downloadBtn" onclick="generarImagen()" class="bg-[#db6015] text-white font-bold py-4 px-10 rounded-full shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+            🚀 Terminar y Descargar Trabajo
         </button>
+        <p class="text-gray-500 text-xs mt-2 italic">Haz clic para guardar tu cuadro como imagen</p>
     </div>
 
+    <!-- Modal de Éxito -->
     <div id="safe-modal">
-        <h2 class="text-white text-xl font-bold mb-4 text-center">¡Trabajo Listo!<br>Manten presionada la imagen para guardar</h2>
-        <img id="result-image" src="">
-        <button onclick="document.getElementById('safe-modal').style.display='none'" class="mt-6 bg-white px-8 py-2 rounded-full font-bold">Volver</button>
+        <h2 class="text-white text-2xl font-bold mb-2 text-center">¡Excelente trabajo! 🌟</h2>
+        <p class="text-white opacity-90 mb-4 text-sm text-center max-w-md">Tu imagen se ha generado. Si no se descargó automáticamente, mantén presionada la imagen para guardarla.</p>
+        <img id="result-image" src="" alt="Resultado de la tarea">
+        <button onclick="document.getElementById('safe-modal').style.display='none'" class="mt-6 bg-white px-8 py-2 rounded-full font-bold text-gray-800 hover:bg-gray-200">Volver a editar</button>
     </div>
 
     <script>
         async function generarImagen() {
             const btn = document.getElementById('downloadBtn');
-            const nombre = document.getElementById('student-name').value || 'Estudiante';
-            btn.innerText = "Procesando...";
+            const nombreInput = document.getElementById('student-name');
+            const nombre = nombreInput.value.trim() || 'Estudiante';
+            
+            btn.innerHTML = "⏳ Creando tu imagen...";
+            btn.disabled = true;
 
             try {
+                // Pequeña pausa para asegurar que se pierda el foco de edición y se vea limpio
+                document.activeElement.blur();
+                await new Promise(resolve => setTimeout(resolve, 100));
+
                 const canvas = await html2canvas(document.getElementById('capture-area'), {
                     scale: 2,
                     useCORS: true,
@@ -127,13 +157,15 @@
                 document.getElementById('safe-modal').style.display = 'flex';
 
                 const link = document.createElement('a');
-                link.download = `Tarea_${nombre.replace(/ /g, "_")}.png`;
+                link.download = `PlusDelta_${nombre.replace(/ /g, "_")}.png`;
                 link.href = imgData;
                 link.click();
             } catch (e) {
-                alert("Error al generar la imagen. Toma una captura de pantalla.");
+                console.error(e);
+                alert("Algo salió mal. Por favor intenta tomar una captura de pantalla normal con tu dispositivo.");
             } finally {
-                btn.innerText = "Terminar y Descargar Trabajo";
+                btn.innerHTML = "🚀 Terminar y Descargar Trabajo";
+                btn.disabled = false;
             }
         }
     </script>
